@@ -1,0 +1,16 @@
+{% load django_perseus_tags %}
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>Test</title>
+    </head>
+    <body>
+        <a href="{% url 'index' %}">index</a>
+        <a href="{% url 'test' %}">test</a>
+        <a href="{% url 'testapp2:sub1' %}">sub1</a>
+        <a href="{% url 'testapp2:sub2' 1 %}">sub2</a>
+        <a href="{% url 'testapp2:sub3' 2 %}">sub3</a>
+        <a href="{% url 'testapp2:sub4' 1 %}">sub4</a>
+        <a href="{% url 'testapp2:sub5' 1 1 %}">sub5</a>
+    </body>
+</html>
