@@ -1,11 +1,15 @@
 tests:
-	py.test -s -v $(APP)
+	py.test $(APP)
 
 test:
-	py.test -s -v -k $(test)
+	py.test -k $(test)
 
 test_class:
-	py.test -s -v $(path)
+	py.test $(path)
 
 coverage:
-	py.test -s -v --cov=$(APP) --cov-report=term-missing $(APP)
+	py.test --cov=$(APP) --cov-report=term-missing $(APP)
+
+coverage-html:
+	coverage run `which py.test` ${APP}
+	coverage html -d htmlcov --include=django_perseus* --omit='*/tests*,*__init__*'
