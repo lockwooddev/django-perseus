@@ -1,16 +1,26 @@
 from django.core.urlresolvers import reverse
 from django.conf import settings as conf
 
+from django_perseus.exceptions import RendererException
 from django_perseus.renderers.default import DefaultRenderer
 from .utils import is_file, is_dir
 
 import os
+import pytest
 import shutil
 
 
 class TestDefaultRenderer:
 
+    def remove_dirs(self):
+        # make sure source dir is empty
+        source_dir = conf.PERSEUS_SOURCE_DIR
+        if os.path.isdir(source_dir):
+            shutil.rmtree(source_dir)
+
     def setup(self):
+        self.remove_dirs()
+
         class TestRenderer(DefaultRenderer):
 
             def paths(self):
@@ -48,7 +58,20 @@ class TestDefaultRenderer:
         assert is_dir(perseus_dir, 'testapp2', 'test')
         assert is_dir(perseus_dir, 'testapp2', 'test', '1')
 
+    def test_generate_path_not_200(self, settings):
+        settings.RENDER_STATIC = True
+
+        class FailRenderer(DefaultRenderer):
+
+            def paths(self):
+                return [
+                    reverse('not_found'),
+                ]
+
+        self.renderer = FailRenderer()
+
+        with pytest.raises(RendererException):
+            self.renderer.generate()
+
     def teardown(self):
-        source_dir = conf.PERSEUS_SOURCE_DIR
-        if os.path.isdir(source_dir):
-            shutil.rmtree(source_dir)
+        self.remove_dirs()

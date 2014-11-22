@@ -16,6 +16,12 @@ class TestStaticTag:
         template = Template("{% load django_perseus_tags %}{% static 'css/styles.css' %}")
         assert template.render(self.ctx) == '/css/styles.css'
 
+    def test_static_tag_relative_url(self, settings):
+        settings.RENDER_STATIC = True
+        settings.STATIC_URL = ''
+        template = Template("{% load django_perseus_tags %}{% static 'css/styles.css' %}")
+        assert template.render(self.ctx) == 'css/styles.css'
+
 
 class TestUrlTag:
 

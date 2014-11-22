@@ -3,10 +3,41 @@ from django.conf import settings
 import imp
 from importlib import import_module
 import logging
+import os
 import sys
+import zipfile
 
 
 logger = logging.getLogger('perseus')
+
+
+def zip_dir(file_name):
+    source_dir = getattr(settings, 'PERSEUS_SOURCE_DIR', None)
+    if not source_dir:
+        raise Exception('PERSEUS_SOURCE_DIR not defined in settings')
+
+    if not os.path.isdir(source_dir):
+        raise Exception('PERSEUS_SOURCE_DIR is not a valid directory')
+
+    build_dir = getattr(settings, 'PERSEUS_BUILD_DIR', None)
+    if not build_dir:
+        raise Exception('PERSEUS_BUILD_DIR not defined in settings.')
+
+    if not os.path.isdir(build_dir):
+        os.makedirs(build_dir)
+
+    rel_path = os.path.abspath(os.path.join(source_dir, os.pardir))
+
+    file_path = os.path.abspath(os.path.join(build_dir, file_name))
+    zip_file = zipfile.ZipFile(file_path, 'w')
+    for root, dirs, files in os.walk(source_dir):
+        for _file in files:
+            location = os.path.join(root, _file)
+            # path for file in zip archive
+            zip_name = os.path.join(os.path.relpath(root, rel_path), _file)
+            zip_file.write(location, arcname=zip_name)
+            logger.debug('File: {0} added to {1}'.format(zip_name, file_name))
+    zip_file.close()
 
 
 def find_renderers():

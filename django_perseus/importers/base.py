@@ -1,34 +1,13 @@
+from django.conf import settings
+
+from django_perseus.exceptions import ImporterException
+
 import logging
 import os
 import shutil
-import zipfile
-
-from django.conf import settings
 
 
 logger = logging.getLogger('django_perseus')
-
-
-def zip_dir(source_dir, file_name):
-    store_path = getattr(settings, 'PERSEUS_BUILD_DIR', None)
-    if not store_path:
-        raise Exception('PERSEUS_BUILD_DIR not defined in settings.')
-
-    if not os.path.isdir(store_path):
-        os.makedirs(store_path)
-
-    rel_path = os.path.abspath(os.path.join(source_dir, os.pardir))
-
-    file_path = os.path.abspath(os.path.join(store_path, file_name))
-    zip_file = zipfile.ZipFile(file_path, 'w')
-    for root, dirs, files in os.walk(source_dir):
-        for _file in files:
-            location = os.path.join(root, _file)
-            # path for file in zip archive
-            zip_name = os.path.join(os.path.relpath(root, rel_path), _file)
-            zip_file.write(location, arcname=zip_name)
-            logger.debug('File: {0} added to {1}'.format(zip_name, file_name))
-    zip_file.close()
 
 
 class BaseImporter(object):
@@ -43,20 +22,21 @@ class BaseImporter(object):
     ignores = ['.DS_Store', ]
 
     def __init__(self):
+        # Check for attributes in settings
         self.target_dir = getattr(settings, self.target_dir, None)
         try:
             if not os.path.isdir(self.target_dir):
                 os.makedirs(self.target_dir)
         except TypeError:
-            raise Exception('Specify target dir')
+            raise ImporterException('target_dir cannot be found in your settings file.')
 
         self.source_dir = getattr(settings, self.source_dir, None)
-        if not self.source_dir:
-            raise Exception('{} could not be found in settings as source_dir')
-
-        if not os.path.isdir(self.source_dir):
-            raise Exception(
-                'Could not find the source_dir: {0}'.format(self.source_dir))
+        try:
+            if not os.path.isdir(self.source_dir):
+                raise ImporterException(
+                    'No files can be imported, because source_dir does not exist.')
+        except TypeError:
+            raise ImporterException('source_dir cannot be found in your settings file.')
 
         self.import_folders()
 
@@ -71,8 +51,8 @@ class BaseImporter(object):
                 break
 
             # This should not be allowed
-            elif path == '/' and len(path) > 1:
-                raise Exception('Specify path. Found: /')
+            elif path.startswith('/'):
+                raise ImporterException('Absolute paths not allowed in sub_dirs')
 
             # Handle directories
             else:
@@ -99,7 +79,6 @@ class BaseImporter(object):
         # create directory if not exists minus file
         self.create_directory('/'.join(destination_file.split('/')[:-1]))
         shutil.copy2(origin_file, destination_file)
-        shutil.copystat(origin_file, destination_file)
         logger.debug('Copied: {0} to {1}'.format(origin_file, destination_file))
 
     def copy_directory(self, origin, destination):

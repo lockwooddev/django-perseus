@@ -1,4 +1,4 @@
-from django_perseus.importers import BaseImporter
+from django_perseus.importers.base import BaseImporter
 
 
 class TestImporter(BaseImporter):
