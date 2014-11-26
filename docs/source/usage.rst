@@ -1,8 +1,20 @@
 Usage
 =====
 
-Renderer classes
-----------------
+Django Perseus consists of few modules working together to sucessfully render a static html site.
+
+- Template tags
+    They overwrite Django's builtin url and static tags to rewrite them statically.
+
+- Renderer
+    Selects views and renders them as static pages.
+
+- Importer
+    Imports a selection of static and media files to the output directory of the renderer.
+
+
+Renderer
+--------
 
 Django Perseus will look for renderers.py file in your Django apps.
 
@@ -30,9 +42,19 @@ to render your Django website with the default behaviour.
     renderers = [AppRenderer, ]
 
 
+The output of the example will be:
+.. code-block:: python
 
-File importer classes
----------------------
+    output_dir/index.html
+    output_dir/privacy.html
+    output_dir/app.html
+    output_dir/app/settings.html
+    output_dir/app/detail/1.html
+    output_dir/app/archive/2014/52.html
+
+
+Importer
+--------
 
 You can subclass ``BaseImporter`` to import files from specific locations in your Django app to a
 target directory
@@ -87,7 +109,7 @@ Register the importer subclass in your perseus settings file:
 Template tags
 -------------
 
-The custom template tags found in this package, overwrite the django builtin ``static`` and ``url`` tags. The tags rewrite paths when the ``render`` management command is run with a settings file
+The tags rewrite paths when the ``render`` management command is run with a settings file
 containing the setting: ``RENDER_STATIC = True``
 
 Load the tags in your templates as:
@@ -97,54 +119,36 @@ Load the tags in your templates as:
     {% load django_perseus_tags %}
 
 
-Rendering
----------
+Management command
+------------------
 
-The ``render`` management command will run all renderer classes found in your Django apps and run
+The ``render`` management command will run all renderers found in your Django apps and run
 the file importers.
 
 ::
 
     ./manage.py render --settings=yourproject.conf.perseus_settings.py
 
-Output
-------
 
-In your ``PERSEUS_SOURCE_DIR`` your will find the following output for the example renderers found
-found in this document.
+Settings
+--------
 
-Output of the ``paths`` method your renderer class with the corresponding url patterns
+
+- ``RENDER_STATIC``
+    A boolean whether the url and static tags will be rewritten to static paths.
+
+- ``PERSEUS_SOURCE_DIR``
+    renderer output folder
+
+- ``PERSEUS_BUILD_DIR``
+    output dir if render management command runs with ``--archive`` option
+
+- ``PERSEUS_IMPORTERS``
+    A list where Importers are to be found.
 
 .. code-block:: python
 
-    # ---------
-    # root urls
-    # ---------
-
-    url(r'^$', SomeView.as_view(), name='index'),
-    reverse('index')
-    PERSEUS_SOURCE_DIR/index.html
-
-    url(r'^privacy/$', SomeView.as_view(), name='privacy'),
-    reverse('privacy')
-    PERSEUS_SOURCE_DIR/privacy.html
-
-    # --------
-    # App urls
-    # --------
-
-    url(r'^$', SomeView.as_view(), name='index'),
-    reverse('app:index')
-    PERSEUS_SOURCE_DIR/app.html
-
-    url(r'^settings/$', SomeView.as_view(), name='settings'),
-    reverse('app:settings')
-    PERSEUS_SOURCE_DIR/app/settings.html
-
-    url(r'^detail/(?P<pk>[\d]+)/$', SomeView.as_view(), name='detail'),
-    reverse('app:detail', kwargs={'pk': 1})
-    PERSEUS_SOURCE_DIR/app/detail/1.html
-
-    url(r'^archive/(?P<year>\d{4})/(?P<week>\d{2})$', SomeView.as_view(), name='archive'),
-    reverse('app:archive', kwargs={'year': 2014, 'week': 52}),
-    PERSEUS_SOURCE_DIR/app/archive/2014/52.html
+    PERSEUS_IMPORTERS = [
+        'yourproject.app.importers.MediaImporter',
+        'yourproject.app.importers.StaticImporter',
+    ]
