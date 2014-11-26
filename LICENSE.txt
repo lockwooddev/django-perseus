@@ -1,5 +1,5 @@
 django-perseus
-Copyright (c) 2011-2012 Carlo Smouter
+Copyright (c) 2014 Carlo Smouter
 All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
