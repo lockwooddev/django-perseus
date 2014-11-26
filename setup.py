@@ -21,6 +21,7 @@ test_requirements = [
     'coverage==3.7.1',
     'execnet==1.2.0',
     'pep8==1.5.7',
+    'mock==1.0.1',
 ]
 
 

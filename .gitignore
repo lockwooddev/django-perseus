@@ -9,3 +9,4 @@ docs/build/
 *.egg-info
 django_perseus/tests/static/
 htmlcov/
+dist/
