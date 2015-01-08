@@ -9,10 +9,14 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (make_option(
         '--archive',
-        action='store',
+        action='store_true',
         dest='archive',
         default=False,
         help='Zips the result of the statically generated website'),
+        make_option('--filename',
+        action='store',
+        dest='filename',
+        default=''),
     )
 
     def handle(self, *args, **options):
@@ -20,4 +24,4 @@ class Command(BaseCommand):
         run_importers()
 
         if options['archive']:
-            zip_dir(options.filename)
+            zip_dir(options.get('filename', 'render.zip'))
