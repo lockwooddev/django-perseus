@@ -39,7 +39,7 @@ def read(*parts):
 
 setup(
     name='django-perseus',
-    version='0.1.0',
+    version='0.1.1',
     description='Builds a static version of your Django website',
     long_description=read('README.md'),
     author='Carlo Smouter',

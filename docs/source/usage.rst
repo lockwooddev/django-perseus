@@ -129,6 +129,14 @@ the file importers.
 
     ./manage.py render --settings=yourproject.conf.perseus_settings.py
 
+To also output the result in a zip archive, run as:
+
+::
+
+    ./manage.py render --archive --settings=yourproject.conf.perseus_settings.py
+
+    ./manage.py render --archive --filename filename.zip --settings=yourproject.conf.perseus_settings.py
+
 
 Settings
 --------
