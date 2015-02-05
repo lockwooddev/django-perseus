@@ -43,7 +43,8 @@ to render your Django website with the default behaviour.
 
 
 The output of the example will be:
-.. code-block:: python
+
+.. code-block:: bash
 
     output_dir/index.html
     output_dir/privacy.html
